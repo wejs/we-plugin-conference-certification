@@ -1,0 +1,11 @@
+{
+  "form-cfcertification-template-name": "Nome do certificado",
+  "form-helper-cfcertification-template-name": " ",
+  "form-placeholder-cfcertification-template-name": "Digite o nome aqui...",
+  "form-cfcertification-template-text": "Texto do certificado",
+  "form-helper-cfcertification-template-text": " ",
+  "form-placeholder-cfcertification-template-text": " ",
+  "form-cfcertification-template-image": "Imagem de fundo do certificado",
+  "form-helper-cfcertification-template-image": "form-helper-cfcertification-template-image",
+  "form-cfcertification-template-submit": "Salvar"
+}
