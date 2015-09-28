@@ -13,29 +13,36 @@ module.exports = function loadPlugin(projectPath, Plugin) {
   });
   // ser plugin routes
   plugin.setRoutes({
-    'get /conference/:conferenceId([0-9]+)/admin/certification': {
-      layoutName    : 'conferenceAdmin',
+    'get /event/:eventId([0-9]+)/admin/certification': {
+      layoutName    : 'eventAdmin',
       controller    : 'cfcertification',
       action        : 'adminPage',
-      // model         : 'conference',
-      permission    : 'manage_conference',
+      // model         : 'event',
+      permission    : 'manage_event',
       template      : 'cfcertification/adminPage'
     },
-    'get /conference/:conferenceId([0-9]+)/admin/certification/:modelName(cfregistrationtype|cfsession)/:modelId([0-9]+)/template': {
-      layoutName    : 'conferenceAdmin',
+    'get /event/:eventId([0-9]+)/admin/certification/:modelName(cfregistrationtype|cfsession)/:modelId([0-9]+)/template': {
+      layoutName    : 'eventAdmin',
       controller    : 'cfcertification',
       action        : 'updateTemplate',
       model         : 'certificationTemplate',
-      permission    : 'manage_conference',
+      permission    : 'manage_event',
       template      : 'cfcertification/updateTemplate'
     },
-    'post /conference/:conferenceId([0-9]+)/admin/certification/:modelName(cfregistrationtype|cfsession)/:modelId([0-9]+)/template': {
-      layoutName    : 'conferenceAdmin',
+    'post /event/:eventId([0-9]+)/admin/certification/:modelName(cfregistrationtype|cfsession)/:modelId([0-9]+)/template': {
+      layoutName    : 'eventAdmin',
       controller    : 'cfcertification',
       action        : 'updateTemplate',
       model         : 'certificationTemplate',
-      permission    : 'manage_conference',
+      permission    : 'manage_event',
       template      : 'cfcertification/updateTemplate'
+    },
+    'post /event/:eventId([0-9]+)/admin/certification/generate': {
+      layoutName    : 'eventAdmin',
+      controller    : 'cfcertification',
+      action        : 'generate',
+      model         : 'certificationTemplate',
+      permission    : 'manage_event'
     }
   });
   return plugin;

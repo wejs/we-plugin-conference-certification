@@ -1,0 +1,4 @@
+{
+  "cfcertification.cfregitration.name": "Certificate of participation in the event {{event.title}} ",
+  "cfcertification.cfregitration.success": "{{count}} certificates registered"
+}

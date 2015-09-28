@@ -1,6 +1,6 @@
 {
-  "name": "we-plugin-conference-certification",
-  "description": "We.js we-plugin-conference-certification plugin",
+  "name": "we-plugin-event-certification",
+  "description": "We.js event certification plugin",
   "version": "0.3.0",
   "main": "lib/index.js",
   "scripts": {
@@ -25,5 +25,9 @@
   "publishConfig": {
     "registry": "http://registry.npmjs.org"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:wejs/we-plugin-event-certification"
+  }
 }

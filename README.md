@@ -1,6 +1,6 @@
-# we-plugin-conference-certification
+# We.js event certification plugin
 
-> [write something about your plugin here]
+> Make user certifications for events
 
 # API
 
@@ -9,6 +9,6 @@
 
 > * We.js site: http://wejs.org
 
-#Copyright and license
+# License
 
-Copyright 2013-2015 [your name] <[your email@email]> and contributors , under [the MIT license](LICENSE).
+under [the MIT license](LICENSE).

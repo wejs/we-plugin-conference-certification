@@ -5,7 +5,14 @@
   "form-cfcertification-template-text": "Texto do certificado",
   "form-helper-cfcertification-template-text": " ",
   "form-placeholder-cfcertification-template-text": " ",
-  "form-cfcertification-template-image": "Imagem de fundo do certificado",
-  "form-helper-cfcertification-template-image": "form-helper-cfcertification-template-image",
-  "form-cfcertification-template-submit": "Salvar"
+  "form-cfcertification-template-image": "Imagem de fundo do certificado com as dimenções: 824 de largura e 595 de altura",
+  "form-helper-cfcertification-template-image": " ",
+
+  "form-cfcertification-template-textPosition": "Posição do texto no certificado",
+  "form-helper-cfcertification-template-textPosition": "Selecione onde o texto vai ser exibido no certificado",
+  "form-placeholder-cfcertification-template-textPosition": " ",
+
+  "form-cfcertification-template-submit": "Salvar",
+  "cfcertification.cfregitration.name": "Certificado de participação no evento {{event.title}} ",
+  "cfcertification.cfregitration.success": "{{count}} certificados registrados com successo"
 }

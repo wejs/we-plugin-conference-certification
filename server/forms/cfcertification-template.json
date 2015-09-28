@@ -15,6 +15,15 @@
       },
       "allowNull": false
     },
+    "textPosition": {
+      "type": "select",
+      "fieldOptions": {
+        "middle": "middle",
+        "left": "left",
+        "right": "right"
+      },
+      "defaultValue": "middle"
+    },
     "image": {
       "type": "file/image"
     },

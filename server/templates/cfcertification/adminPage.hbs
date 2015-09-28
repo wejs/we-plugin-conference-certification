@@ -1,3 +1,9 @@
+<div class="actions">
+  <form action="/event/{{event.id}}/admin/certification/generate" method="post">
+    <input name="redirectTo" type="hidden" value="{{req.path}}">
+    <button class="btn btn-sm btn-default">{{t 'cfcertification.generate.all'}}</button>
+  </form>
+</div>
 
 <div class="panel panel-default">
   <div class="panel-body">
@@ -15,7 +21,7 @@
           <td>{{id}}</td>
           <td>{{name}}</td>
           <td>
-            {{#link-to 'cfcertification.updateTemplate' ../conference.id 'cfregistrationtype' id class="btn btn-default btn-sm"}}
+            {{#link-to 'cfcertification.updateTemplate' ../event.id 'cfregistrationtype' id class="btn btn-default btn-sm"}}
               {{#if certificationTemplate}}
                 {{t 'edit'}}
               {{else}}
@@ -47,7 +53,7 @@
             <td>{{id}}</td>
             <td>{{title}}</td>
             <td>
-              {{#link-to 'cfcertification.updateTemplate' ../conference.id 'cfsession' id class="btn btn-default btn-sm"}}
+              {{#link-to 'cfcertification.updateTemplate' ../event.id 'cfsession' id class="btn btn-default btn-sm"}}
                 {{#if certificationTemplate}}
                   {{t 'edit'}}
                 {{else}}
