@@ -13,6 +13,20 @@
   "form-placeholder-cfcertification-template-textPosition": " ",
 
   "form-cfcertification-template-submit": "Salvar",
+
+
   "cfcertification.cfregitration.name": "Certificado de participação no evento {{event.title}} ",
-  "cfcertification.cfregitration.success": "{{count}} certificados registrados com successo"
+
+
+  "cfcertification.cfregitration.success": "{{count}} certificados registrados com successo",
+  "cfcertification.adminPage": "Certificados do evento",
+  "cfcertification.cfregitration.nothing": "Sem novos certificados à emitir",
+  "cfcertification.generate": "Gerar",
+  "cfcertificationtype.markAllAsPresent": "Marcar todos os usuários presentes",
+  "cfregistrationtype.markAllAsPresent.success": "Todos os usuários foram marcados como presentes",
+
+
+  "cfcertification.cfsession.name": "Certificado da atividade {{cfsession.title}} no evento {{event.title}}",
+  "cfcertification.cfsession.text": "Certificado da atividade {{cfsession.title}} no evento {{event.title}}",
+  "cfcertification.not-avaible": "A geração de certificados só estará disponível após adicionar todos os templates de certificados acima e após a finalização do evento"
 }

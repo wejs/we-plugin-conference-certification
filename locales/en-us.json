@@ -1,4 +1,10 @@
 {
   "cfcertification.cfregitration.name": "Certificate of participation in the event {{event.title}} ",
-  "cfcertification.cfregitration.success": "{{count}} certificates registered"
+  "cfcertification.cfregitration.success": "{{count}} certificates registered",
+  "cfcertification.adminPage": "Event certifications",
+  "cfcertification.cfregitration.nothing": "No certifications to create",
+  "cfcertification.generate": "Generate",
+  "cfcertificationtype.markAllAsPresent": "Mark all as present",
+  "cfregistrationtype.markAllAsPresent.success": "Now all users is marked as present",
+  "cfcertification.not-avaible": "The certification only will be avaible after add all certification templates and event registration is finished"
 }

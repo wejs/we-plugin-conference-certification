@@ -9,10 +9,6 @@
     },
     "text": {
       "type": "textarea",
-      "defaultValue": "",
-      "formFieldAttributes": {
-        "rows": 7
-      },
       "allowNull": false
     },
     "textPosition": {
