@@ -7,7 +7,7 @@ module.exports = {
     res.locals.certificationIdentifiers = {}
     res.locals.certificationIdentifiers['event-'+res.locals.event.id+'-registration'] = {};
     res.locals.certificationIdentifiers['event-'+res.locals.event.id+'-cfsession'] = {};
-    res.locals.certificationIdentifiers['event-'+res.locals.event.id+'-cfspeaker'] = {};
+    //res.locals.certificationIdentifiers['event-'+res.locals.event.id+'-cfspeaker'] = {};
 
     req.we.utils.async.series([
       function loadCertificationTemplate(done) {
