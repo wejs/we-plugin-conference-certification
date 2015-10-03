@@ -5,9 +5,9 @@ module.exports = {
     if (!res.locals.event) return res.notFound();
 
     res.locals.certificationIdentifiers = {
-      'event-1-registration': {},
-      'event-1-cfsession': {},
-      // 'event-1-cfspeaker': {}
+      'event-'+res.locals.event.id+'-registration': {},
+      'event-'+res.locals.event.id+'-cfsession': {},
+      // 'event-'+res.locals.event.id+'-cfspeaker': {}
     }
 
     req.we.utils.async.series([
