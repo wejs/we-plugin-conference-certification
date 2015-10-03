@@ -4,11 +4,10 @@ module.exports = {
   adminPage: function adminPage(req, res) {
     if (!res.locals.event) return res.notFound();
 
-    res.locals.certificationIdentifiers = {
-      'event-'+res.locals.event.id+'-registration': {},
-      'event-'+res.locals.event.id+'-cfsession': {},
-      // 'event-'+res.locals.event.id+'-cfspeaker': {}
-    }
+    res.locals.certificationIdentifiers = {}
+    res.locals.certificationIdentifiers['event-'+res.locals.event.id+'-registration'] = {};
+    res.locals.certificationIdentifiers['event-'+res.locals.event.id+'-cfsession'] = {};
+    res.locals.certificationIdentifiers['event-'+res.locals.event.id+'-cfspeaker'] = {};
 
     req.we.utils.async.series([
       function loadCertificationTemplate(done) {
