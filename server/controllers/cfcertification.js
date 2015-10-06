@@ -7,6 +7,9 @@ module.exports = {
     res.locals.certificationIdentifiers = {}
     res.locals.certificationIdentifiers['event-'+res.locals.event.id+'-registration'] = {};
     res.locals.certificationIdentifiers['event-'+res.locals.event.id+'-cfsession'] = {};
+
+    var cIcount = Object.keys(res.locals.certificationIdentifiers).length
+
     //res.locals.certificationIdentifiers['event-'+res.locals.event.id+'-cfspeaker'] = {};
 
     req.we.utils.async.series([
@@ -24,7 +27,7 @@ module.exports = {
             for (var i = 0; i < ct.length; i++) {
               res.locals.certificationIdentifiers[ct[i].identifier] = ct[i];
             }
-            if ( (ct.length == 3) &&
+            if ( (ct.length ==  cIcount) &&
               (res.locals.event.registrationStatus == 'closed_after')
             ) {
               res.locals.haveAllTemplates = true;
@@ -84,9 +87,9 @@ module.exports = {
           where: { identifier: req.params.identifier }
         }).then(function (r) {
           if (r) {
-            res.locals.record = r;
+            res.locals.data = r;
           } else {
-            res.locals.record = {
+            res.locals.data = {
               text: req.we.config.cfcertification.texts[handlerName]
             }
           }
@@ -97,9 +100,9 @@ module.exports = {
       if (err) return res.queryError(err);
 
       if (req.method == 'POST') {
-        if (res.locals.record && res.locals.record.id) {
+        if (res.locals.data && res.locals.data.id) {
           // update
-          res.locals.record.updateAttributes({
+          res.locals.data.updateAttributes({
             name: req.body.name,
             text: req.body.text,
             textPosition: req.body.textPosition,
@@ -117,7 +120,7 @@ module.exports = {
             textPosition: req.body.textPosition,
             image: req.body.image
           }).then(function (r) {
-            res.locals.record = r;
+            res.locals.data = r;
             res.ok();
           }).catch(res.queryError);
         }
