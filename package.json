@@ -1,7 +1,7 @@
 {
   "name": "we-plugin-event-certification",
   "description": "We.js event certification plugin",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "main": "plugin.js",
   "scripts": {
     "lint": "./node_modules/.bin/jshint .",
