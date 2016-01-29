@@ -322,5 +322,19 @@ module.exports = function loadPlugin(projectPath, Plugin) {
     // }
   });
 
+  /**
+   * Generate all avaible certifications for one event
+   * @param  {Object}   event event record
+   * @param  {Object}   we    we.js
+   * @param  {Function} done  callback
+   */
+  plugin.generateEventCertifications = function generateEventCertifications(event, we, done) {
+    var hNames = Object.keys(we.config.cfcertification.handlers);
+
+    we.utils.async.eachSeries(hNames, function (name, done) {
+      we.config.cfcertification.handlers[name](we, event, done);
+    }, done);
+  }
+
   return plugin;
 };

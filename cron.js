@@ -3,12 +3,8 @@ module.exports = function (we, done) {
   .then(function (events) {
     if (!events || !we.config.cfcertification.handlers) return done();
 
-    var hNames = Object.keys(we.config.cfcertification.handlers);
-
     we.utils.async.eachSeries(events, function (e, done) {
-      we.utils.async.eachSeries(hNames, function (name, done) {
-        we.config.cfcertification.handlers[name](we, e, done);
-      }, done);
+      we.plugins['we-plugin-event-certification'].generateEventCertifications(e, we, done);
     }, done);
   });
 }
