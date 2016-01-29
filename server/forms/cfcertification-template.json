@@ -12,7 +12,7 @@
       "allowNull": false
     },
     "textPosition": {
-      "type": "select",
+      "type": "certificationTextPositionSelector",
       "fieldOptions": {
         "middle": "middle",
         "left": "left",
