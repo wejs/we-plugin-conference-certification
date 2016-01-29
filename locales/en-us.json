@@ -6,5 +6,10 @@
   "cfcertification.generate": "Generate",
   "cfcertificationtype.markAllAsPresent": "Mark all as present",
   "cfregistrationtype.markAllAsPresent.success": "Now all users is marked as present",
-  "cfcertification.not-avaible": "The certification only will be avaible after add all certification templates and event registration is finished"
+  "cfcertification.not-avaible": "The certification only will be avaible after add all certification templates and event registration is finished",
+  "form-cfcertification-template-published": "Published?",
+  "form-helper-cfcertification-template-published": "Only generate certifications for this template if it will ve published",
+  "form-placeholder-cfcertification-template-published": " ",
+
+  "form-cfcertification-template-preview": "Preview"
 }

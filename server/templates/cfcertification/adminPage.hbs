@@ -3,6 +3,7 @@
     <tr>
       <th>ID</th>
       <th>{{t 'name'}}</th>
+      <th>{{t 'published'}}</th>
       <th>{{t 'actions'}}</th>
     </tr>
   </thead>
@@ -15,6 +16,11 @@
         <td>
           {{name}}
         </td>
+        <td>{{#if published}}
+          <i class="glyphicon glyphicon-check text-success"><span class="sr-only">{{t 'published'}}</span></i>
+        {{else}}
+          <i class="glyphicon glyphicon-unchecked text-warning"><span class="sr-only">{{t 'unpublished'}}</span></i>
+        {{/if}}</td>
         <td>
           {{#link-to 'cfcertification.updateTemplate' ../event.id @key class="btn btn-default btn-sm"}}
             {{#if id}}
@@ -23,12 +29,15 @@
               {{t 'add'}}
             {{/if}}
           {{/link-to}}
+
+          {{#link-to 'cfcertification.previewTemplate' ../event.id @key class="btn btn-default btn-sm" target="_blank"}}
+            {{t 'preview'}}
+          {{/link-to}}
         </td>
       </tr>
     {{/each}}
   </tbody>
 </table>
-
 
 {{#if haveAllTemplates}}
   <div class="panel panel-default">

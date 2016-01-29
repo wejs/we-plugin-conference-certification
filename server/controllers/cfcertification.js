@@ -107,7 +107,8 @@ module.exports = {
             name: req.body.name,
             text: req.body.text,
             textPosition: req.body.textPosition,
-            image: req.body.image
+            image: req.body.image,
+            published: req.body.published
           }).then(function(){
             res.ok();
           }).catch(res.queryError);
@@ -129,6 +130,45 @@ module.exports = {
         res.ok();
       }
     });
+  },
+
+  /**
+   * render one exemple template
+   *
+   */
+  previewTemplate: function(req, res) {
+    var certificator = req.we.plugins['we-plugin-certification'];
+
+    var idParams = req.params.identifier.split('-');
+    var identifierEventId = idParams[1];
+    if (identifierEventId != res.locals.event.id) return res.notFound();
+
+    var handlerName;
+    if (idParams[2] == 'registration') {
+      handlerName = 'event_registrations';
+    } else if (idParams[2] == 'cfsession') {
+      handlerName = 'cfsession_subscribers';
+    } else if (idParams[2] == 'cfspeaker') {
+      handlerName = 'cfsession_speakers';
+    } else {
+      return res.notFound();
+    }
+
+    req.we.db.models.certificationTemplate.findOne({
+      where: { identifier: req.params.identifier }
+    }).then(function (tpl) {
+      if (!tpl) {
+        tpl = {
+          text: req.we.config.cfcertification.texts[handlerName]
+        }
+      }
+
+      res.locals.pdfTemplate = tpl;
+      res.locals.data = { text: tpl.text };
+
+      certificator.renderPDFtemplate(req, res);
+
+    }).catch(res.queryError);
   },
 
   // /**

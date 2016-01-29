@@ -28,5 +28,10 @@
 
   "cfcertification.cfsession.name": "Certificado da atividade {{cfsession.title}} no evento {{event.title}}",
   "cfcertification.cfsession.text": "Certificado da atividade {{cfsession.title}} no evento {{event.title}}",
-  "cfcertification.not-avaible": "A geração de certificados só estará disponível após adicionar todos os templates de certificados acima e após a finalização do evento"
+  "cfcertification.not-avaible": "A geração de certificados só estará disponível após adicionar todos os templates de certificados acima e após a finalização do evento",
+  "form-cfcertification-template-published": "Publicado?",
+  "form-helper-cfcertification-template-published": "O sistema só vai gerar certificados se estiver publicado",
+  "form-placeholder-cfcertification-template-published": " ",
+
+  "form-cfcertification-template-preview": "Testar"
 }

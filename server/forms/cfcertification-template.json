@@ -23,6 +23,10 @@
     "image": {
       "type": "file/image"
     },
+    "published": {
+      "type": "boolean",
+      "defaultValue": false
+    },
     "id": {
       "type": "hidden"
     }
