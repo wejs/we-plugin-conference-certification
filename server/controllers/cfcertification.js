@@ -27,7 +27,8 @@ module.exports = {
             for (var i = 0; i < ct.length; i++) {
               res.locals.certificationIdentifiers[ct[i].identifier] = ct[i];
             }
-            if ( (ct.length ==  cIcount) &&
+
+            if ( (ct.length >=  cIcount) &&
               (res.locals.event.registrationStatus == 'closed_after')
             ) {
               res.locals.haveAllTemplates = true;
@@ -129,6 +130,7 @@ module.exports = {
       }
     });
   },
+
   // /**
   //  * Generate one event certification
   //  * TODO split in small functions
