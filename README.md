@@ -1,6 +1,6 @@
 # We.js event certification plugin
 
-> Make user certifications for events
+> Add an event certifications management feature in event admin for generate user certifications for events
 
 ## Installation
 
@@ -8,8 +8,15 @@
 npm install --save we-plugin-event-certification we-plugin-certification
 ```
 
-## API
+Then configure the project cron in your server: https://wejs.org/docs/we/cron
 
+## Admin page
+
+### Manage event certifications:
+
+```
+/event/:eventId([0-9]+)/admin/certification
+```
 
 ## Links
 
