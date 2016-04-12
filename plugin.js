@@ -336,5 +336,20 @@ module.exports = function loadPlugin(projectPath, Plugin) {
     }, done);
   }
 
+  plugin.hooks.on('we-plugin-event:widget:we-cf-menu-content', function onCFContentMenu(data, done){
+    if (!data.widget.menu || !data.widget.eventId) return done();
+
+    data.widget.menu.addLink({
+      id: 'cfcertification.adminPage',
+      text: '<span class="fa fa-certificate"></span> '+data.req.__('cfcertification.adminPage'),
+      href: '/event/'+data.widget.eventId+'/admin/certification',
+      class: null,
+      weight: 17,
+      name: 'cfcertification.adminPage'
+    });
+
+    done();
+  });
+
   return plugin;
 };
