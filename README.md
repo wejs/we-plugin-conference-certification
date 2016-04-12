@@ -2,13 +2,19 @@
 
 > Make user certifications for events
 
-# API
+## Installation
+
+```sh
+npm install --save we-plugin-event-certification we-plugin-certification
+```
+
+## API
 
 
 ## Links
 
 > * We.js site: http://wejs.org
 
-# License
+## License
 
 under [the MIT license](LICENSE).
