@@ -30,9 +30,11 @@
             {{/if}}
           {{/link-to}}
 
-          {{#link-to 'cfcertification.previewTemplate' ../event.id @key class="btn btn-default btn-sm" target="_blank"}}
-            {{t 'preview'}}
-          {{/link-to}}
+          {{#if id}}
+            {{#link-to 'cfcertification.previewTemplate' ../event.id @key class="btn btn-default btn-sm" target="_blank"}}
+              {{t 'preview'}}
+            {{/link-to}}
+          {{/if}}
         </td>
       </tr>
     {{/each}}

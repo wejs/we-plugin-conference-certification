@@ -158,9 +158,7 @@ module.exports = {
       where: { identifier: req.params.identifier }
     }).then(function (tpl) {
       if (!tpl) {
-        tpl = {
-          text: req.we.config.cfcertification.texts[handlerName]
-        }
+        return res.goTo('/event/'+res.locals.event.id+'/admin/certification/'+req.params.identifier+'/template');
       }
 
       res.locals.pdfTemplate = tpl;
