@@ -24,4 +24,4 @@ Then configure the project cron in your server: https://wejs.org/docs/we/cron
 
 ## License
 
-under [the MIT license](LICENSE).
+under [the MIT license](https://github.com/wejs/we/blob/master/LICENSE.md).
