@@ -120,7 +120,8 @@ module.exports = {
             name: req.body.name,
             text: req.body.text,
             textPosition: req.body.textPosition,
-            image: req.body.image
+            image: req.body.image,
+            published: req.body.published
           }).then(function (r) {
             res.locals.data = r;
             res.ok();
