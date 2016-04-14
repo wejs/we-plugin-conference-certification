@@ -12,13 +12,13 @@ module.exports = function loadPlugin(projectPath, Plugin) {
     },
     cfcertification: {
       names: {
-        'event_registrations': 'Certificamos que {{data.fullName}}, participou do {{event.title}}, '+
+        cfregistrationtype: 'Certificamos que {{data.fullName}}, participou do {{event.title}}, '+
           'no período de {{startDate}} a {{endDate}} ',
         'cfsession_subscribers': '',
         // 'cfsession_speakers': ''
       },
       texts: {
-        'event_registrations': 'Certificamos que {{data.fullName}}, participou do {{event.title}} '+
+        cfregistrationtype: 'Certificamos que {{data.fullName}}, participou do {{event.title}} '+
           'no período de {{startDate}} a {{endDate}} ',
         'cfsession_subscribers': 'Certificamos que {{data.fullName}}, participou da atividade {{cfsession.title}} '+
           'no evento {{event.title}} '+
@@ -112,170 +112,31 @@ module.exports = function loadPlugin(projectPath, Plugin) {
           }
           return done();
         });
-      },
-      // 'cfsession_subscribers': function(we, e, done) {
-      //   var tpl, cfsessions, cToCreate = [];
-
-      //   we.utils.async.series([
-      //     function loadSession(done) {
-      //       we.db.models.cfsession.findAll({
-      //         where: { eventId: e.id }
-      //       }).then(function (r) {
-      //         cfsessions = r;
-      //         done();
-      //       }).catch(done);
-      //     },
-      //     function loadCertificationTemplate(done) {
-      //       if (!cfsessions) return done();
-      //       we.db.models.certificationTemplate.findOne({
-      //         where: { identifier: 'event-1-cfsession', published: true }
-      //       }).then(function (r) {
-      //         tpl = r;
-      //         done();
-      //       }).catch(done);
-      //     },
-      //     function createCFSessionCerfications(done) {
-      //       if (!tpl) return done();
-
-      //       var startDate = we.utils.moment(e.eventStartDate).format('DD/MM');
-      //       var endDate = we.utils.moment(e.eventEndDate).format('DD/MM');
-      //       var textFN = we.hbs.compile(tpl.text);
-
-      //       we.utils.async.eachSeries(cfsessions, function (cfsession, next) {
-      //         var identifier = 'event-'+e.id+'-cfsession'+cfsession.id;
-
-      //         var sql = 'SELECT cfr.id AS id, cfr.userId AS userId, users.fullName, users.displayName, users.email '+
-      //           'FROM cfsessionSubscribers AS cfss '+
-      //           'LEFT JOIN cfregistrations AS cfr ON cfr.id=cfss.cfregistrationId '+
-      //           'LEFT JOIN  users ON users.id=cfr.userId '+
-      //           'LEFT JOIN certifications ON certifications.identifier="'+identifier+'" '+
-      //             ' AND certifications.userId=cfr.userId '+
-      //           'WHERE cfr.eventId="'+e.id+'" AND cfss.present=true '+
-      //             'AND certifications.id IS NULL AND cfss.cfsessionId='+cfsession.id;
-
-      //         we.db.defaultConnection.query(sql)
-      //         .then(function (r) {
-      //           if (!r || !r[0]) return next();
-      //           cToCreate = cToCreate.concat(r[0].map(function (i) {
-      //             return {
-      //               name: we.i18n.__('cfcertification.cfsession.name', {
-      //                 event: e, cfsession: cfsession, data: i
-      //               }),
-      //               text: textFN({
-      //                 event: e, cfsession: cfsession, data: i,
-      //                 startDate: startDate,
-      //                 endDate: endDate
-      //               }),
-      //               identifier: identifier,
-      //               userId: i.userId,
-      //               templateId: tpl.id
-      //             };
-      //           }));
-
-      //           next();
-      //         }).catch(next);
-      //       }, done);
-      //     },
-      //     function createCertifications(done) {
-      //       if (!cToCreate) return done();
-      //       we.db.models.certification
-      //       .bulkCreate(cToCreate).then(function () {
-      //         if (cToCreate && cToCreate.length) {
-      //           we.log.info('Event: cfsession certifications created: '+cToCreate.length);
-      //         }
-      //         done();
-      //       }).catch(done);
-      //     },
-      //   ], function (err){
-      //     if (err) {
-      //       we.log.error('Error in generate user cfsession certifications: ', err);
-      //     }
-      //     return done();
-      //   });
-      // },
-      // 'cfsession_speakers': function(we, e, done) {
-      //   var tpl, cfsessions, cToCreate = [];
-
-      //   we.utils.async.series([
-      //     function loadSession(done) {
-      //       we.db.models.cfsession.findAll({
-      //         where: { eventId: e.id }
-      //       }).then(function (r) {
-      //         cfsessions = r;
-      //         done();
-      //       }).catch(done);
-      //     },
-      //     function loadCertificationTemplate(done) {
-      //       if (!cfsessions) return done();
-      //       we.db.models.certificationTemplate.findOne({
-      //         where: { identifier: 'event-1-cfspeaker' }
-      //       }).then(function (r) {
-      //         tpl = r;
-      //         done();
-      //       }).catch(done);
-      //     },
-
-      //     function createCFSessionCerfications(done) {
-      //       if (!tpl) return done();
-
-      //       var startDate = we.utils.moment(e.eventStartDate).format('DD/MM');
-      //       var endDate = we.utils.moment(e.eventEndDate).format('DD/MM');
-      //       var textFN = we.hbs.compile(tpl.text);
-
-      //       we.utils.async.eachSeries(cfsessions, function (cfsession, next) {
-      //         var identifier = 'event-'+e.id+'-cfspeaker-'+cfsession.id;
-
-      //         var sql = 'SELECT cfs.id AS id, cfs.userId AS userId, users.fullName, users.displayName, users.email '+
-      //           'FROM cfsessions AS cfs '+
-      //           'LEFT JOIN  users ON users.id=cfs.userId '+
-      //           'LEFT JOIN certifications ON certifications.identifier="'+identifier+'" '+
-      //             ' AND certifications.userId=cfs.userId '+
-      //           'WHERE cfs.eventId="'+e.id+'" '+
-      //             'AND certifications.id IS NULL AND cfs.id='+cfsession.id;
-
-      //         we.db.defaultConnection.query(sql)
-      //         .then(function (r) {
-      //           if (!r || !r[0]) return next();
-      //           cToCreate = cToCreate.concat(r[0].map(function (i) {
-      //             return {
-      //               name: we.i18n.__('cfcertification.cfsession.name', {
-      //                 event: e, cfsession: cfsession, data: i
-      //               }),
-      //               text: textFN({
-      //                 event: e, cfsession: cfsession, data: i,
-      //                 startDate: startDate,
-      //                 endDate: endDate
-      //               }),
-      //               identifier: identifier,
-      //               userId: i.userId,
-      //               templateId: tpl.id
-      //             };
-      //           }));
-
-      //           next();
-      //         }).catch(next);
-      //       }, done);
-      //     },
-      //     function createCertifications(done) {
-      //       if (!cToCreate) return done();
-      //       we.db.models.certification
-      //       .bulkCreate(cToCreate).then(function () {
-      //         if (cToCreate && cToCreate.length) {
-      //           we.log.info('Event: cfspeaker certifications created: '+cToCreate.length);
-      //         }
-      //         done();
-      //       }).catch(done);
-      //     },
-      //   ], function (err){
-      //     if (err) {
-      //       we.log.error('Error in generate user cfspeaker certifications: ', err);
-      //     }
-      //     return done();
-      //   });
-      // }
+      }
     }
     }
   });
+
+  plugin.router.breadcrumb.add('cfcertificationAdmin', function eventAdmin(req, res, next) {
+    if (!res.locals.event) return next();
+
+      res.locals.breadcrumb = '<ol class="breadcrumb">'+
+        '<li><a href="/">'+res.locals.__('Home')+'</a></li>'+
+        '<li><a href="/event">'+res.locals.__('event.find')+'</a></li>'+
+        '<li><a href="/event/'+res.locals.event.id+'">'+
+          req.we.utils.string(res.locals.event.title || '').truncate(25).s+
+        '</a></li>'+
+        '<li><a href="/event/'+res.locals.event.id+'/admin">'+res.locals.__('event_admin')+'</a></li>'+
+        '<li><a href="/event/'+req.params.eventId+'/admin/cfregistrationtype">'+
+          res.locals.__('cfregistrationtype.find')+
+        '</a></li>'+
+        '<li class="active">#'+req.params.cfregistrationtypeId+'</li>'+
+      '</ol>';
+
+      next();
+    }
+  );
+
   // ser plugin routes
   plugin.setRoutes({
     'get /event/:eventId([0-9]+)/admin/certification': {
@@ -288,38 +149,35 @@ module.exports = function loadPlugin(projectPath, Plugin) {
       permission    : 'manage_event',
       template      : 'cfcertification/adminPage'
     },
-    'get /event/:eventId([0-9]+)/admin/certification/:identifier/template': {
+    'get /event/:eventId([0-9]+)/admin/cfregistrationtype/:cfregistrationtypeId([0-9]+)/template': {
+      name          : 'cfcertification.updateCFRTypeTemplate',
       layoutName    : 'eventAdmin',
       controller    : 'cfcertification',
-      action        : 'updateTemplate',
+      action        : 'updateCFRTypeTemplate',
       model         : 'certificationTemplate',
       permission    : 'manage_event',
-      template      : 'cfcertification/updateTemplate'
-    },
-    'post /event/:eventId([0-9]+)/admin/certification/:identifier/template': {
-      layoutName    : 'eventAdmin',
-      controller    : 'cfcertification',
-      action        : 'updateTemplate',
-      model         : 'certificationTemplate',
-      permission    : 'manage_event',
+      breadcrumbHandler: 'cfcertificationAdmin',
       template      : 'cfcertification/updateTemplate'
     },
 
-    'get /event/:eventId([0-9]+)/admin/certification/:identifier/template/preview.pdf': {
+    'post /event/:eventId([0-9]+)/admin/cfregistrationtype/:cfregistrationtypeId([0-9]+)/template': {
       layoutName    : 'eventAdmin',
       controller    : 'cfcertification',
-      action        : 'previewTemplate',
+      action        : 'updateCFRTypeTemplate',
       model         : 'certificationTemplate',
       permission    : 'manage_event',
+      breadcrumbHandler: 'cfcertificationAdmin',
       template      : 'cfcertification/updateTemplate'
     },
-    // 'post /event/:eventId([0-9]+)/admin/certification/:modelName(cfregistrationtype|cfsession)/:modelId([0-9]+)/generate': {
-    //   layoutName    : 'eventAdmin',
-    //   controller    : 'cfcertification',
-    //   action        : 'generate',
-    //   model         : 'certificationTemplate',
-    //   permission    : 'manage_event'
-    // }
+
+    'get /event/:eventId([0-9]+)/admin/cfregistrationtype/:cfregistrationtypeId([0-9]+)/template/preview.pdf': {
+      name          : 'cfcertification.previewCFRTypeTemplate',
+      layoutName    : 'eventAdmin',
+      controller    : 'cfcertification',
+      action        : 'previewCFRTypeTemplate',
+      model         : 'certificationTemplate',
+      permission    : 'manage_event'
+    }
   });
 
   /**

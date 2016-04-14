@@ -62,42 +62,40 @@ module.exports = {
       res.ok();
     });
   },
-  /**
-   * Create or update one certification template for event
-   */
-  updateTemplate: function(req, res) {
-    if (!res.locals.event) return res.notFound();
-    var idParams = req.params.identifier.split('-');
-    var identifierEventId = idParams[1];
-    if (identifierEventId != res.locals.event.id) return res.notFound();
 
-    var handlerName;
-    if (idParams[2] == 'registration') {
-      handlerName = 'event_registrations';
-    } else if (idParams[2] == 'cfsession') {
-      handlerName = 'cfsession_subscribers';
-    } else if (idParams[2] == 'cfspeaker') {
-      handlerName = 'cfsession_speakers';
-    } else {
-      return res.notFound();
-    }
+  updateCFRTypeTemplate: function updateCFRTypeTemplate(req, res) {
+    if (!res.locals.event) return res.notFound();
+
+    var id = req.params.cfregistrationtypeId;
+    var identifier = 'event-'+res.locals.event.id+'-cfregistrationtype-'+id;
 
     req.we.utils.async.series([
+      function loadCFRType(done) {
+        req.we.db.models.cfregistrationtype.findOne({
+          where: {
+            id: id, eventId: res.locals.event.id
+          }
+        }).then(function afterLoadCFRType(r) {
+          if (!r) return res.notFound();
+          res.locals.cfregistrationtype = r;
+          done();
+        }).catch(done);
+      },
       function loadCertificationTemplate(done) {
         req.we.db.models.certificationTemplate.findOne({
-          where: { identifier: req.params.identifier }
+          where: { identifier: identifier }
         }).then(function (r) {
           if (r) {
             res.locals.data = r;
           } else {
             res.locals.data = {
-              text: req.we.config.cfcertification.texts[handlerName]
+              text: req.we.config.cfcertification.texts.cfregistrationtype
             }
           }
           done();
         }).catch(done);
       }
-    ], function (err){
+    ], function afterLoadAllData(err) {
       if (err) return res.queryError(err);
 
       if (req.method == 'POST') {
@@ -109,25 +107,36 @@ module.exports = {
             textPosition: req.body.textPosition,
             image: req.body.image,
             published: req.body.published
-          }).then(function(){
+          }).then(function afterUpdate() {
+
+            res.addMessage('success', {
+              text: 'cfcertification.template.updated.successfully'
+            });
+
             res.ok();
           }).catch(res.queryError);
         } else {
           // create
           req.we.db.models.certificationTemplate
           .create({
-            identifier: req.params.identifier,
+            identifier: identifier,
             name: req.body.name,
             text: req.body.text,
             textPosition: req.body.textPosition,
             image: req.body.image,
             published: req.body.published
-          }).then(function (r) {
+          }).then(function afterCreate(r) {
             res.locals.data = r;
+
+            res.addMessage('success', {
+              text: 'cfcertification.template.updated.successfully'
+            });
+
             res.ok();
           }).catch(res.queryError);
         }
       } else {
+        // get form
         res.ok();
       }
     });
@@ -137,29 +146,22 @@ module.exports = {
    * render one exemple template
    *
    */
-  previewTemplate: function(req, res) {
+  previewCFRTypeTemplate: function previewCFRTypeTemplate(req, res) {
+    if (!res.locals.event) return res.notFound();
+
     var certificator = req.we.plugins['we-plugin-certification'];
 
-    var idParams = req.params.identifier.split('-');
-    var identifierEventId = idParams[1];
-    if (identifierEventId != res.locals.event.id) return res.notFound();
-
-    var handlerName;
-    if (idParams[2] == 'registration') {
-      handlerName = 'event_registrations';
-    } else if (idParams[2] == 'cfsession') {
-      handlerName = 'cfsession_subscribers';
-    } else if (idParams[2] == 'cfspeaker') {
-      handlerName = 'cfsession_speakers';
-    } else {
-      return res.notFound();
-    }
+    var id = req.params.cfregistrationtypeId;
+    var identifier = 'event-'+res.locals.event.id+'-cfregistrationtype-'+id;
 
     req.we.db.models.certificationTemplate.findOne({
-      where: { identifier: req.params.identifier }
-    }).then(function (tpl) {
+      where: { identifier: identifier }
+    }).then(function afterFind(tpl) {
       if (!tpl) {
-        return res.goTo('/event/'+res.locals.event.id+'/admin/certification/'+req.params.identifier+'/template');
+        // if not fount, redirect to create/update template page
+        return res.goTo(
+          '/event/'+res.locals.event.id+
+          '/admin/cfregistrationtype/'+id+'/template');
       }
 
       res.locals.pdfTemplate = tpl;
@@ -168,156 +170,5 @@ module.exports = {
       certificator.renderPDFtemplate(req, res);
 
     }).catch(res.queryError);
-  },
-
-  // /**
-  //  * Generate one event certification
-  //  * TODO split in small functions
-  //  */
-  // generate: function generate(req, res) {
-  //   if (!res.locals.event || !res.locals.event.id) return res.notFound();
-
-  //   var tpls, record, cToCreate, eId = res.locals.event.id;
-
-  //   req.we.utils.async.series([
-  //     function loadCertificationTypes(done) {
-  //       if (req.params.modelName != 'cfregistrationtype')
-  //         return done();
-
-  //       req.we.db.models.cfregistrationtype.findOne({
-  //         where: {
-  //           eventId: res.locals.event.id,
-  //           id: req.params.modelId
-  //         }
-  //       }).then(function (r) {
-  //         record = r;
-  //         done();
-  //       }).catch(done);
-  //     },
-  //     function loadSession(done) {
-  //       if (req.params.modelName != 'cfsession')
-  //         return done();
-
-  //       req.we.db.models.cfsession.findOne({
-  //         where: {
-  //           eventId: res.locals.event.id,
-  //           id: req.params.modelId
-  //         }
-  //       }).then(function (r) {
-  //         record = r;
-  //         done();
-  //       }).catch(done);
-  //     },
-  //     function loadCertificationTemplates(done) {
-  //       if (!record) return done();
-  //       req.we.db.models.certificationTemplate.findAll({
-  //         where: {
-  //           modelName: req.params.modelName,
-  //           modelId: record.id
-  //         }
-  //       }).then(function (r) {
-  //         tpls = r;
-  //         done();
-  //       }).catch(done);
-  //     },
-  //     function loadCFR(done) {
-  //       if (!tpls || (req.params.modelName != 'cfregistrationtype')) return done();
-
-  //       req.we.utils.async.eachSeries(tpls, function (tpl, next) {
-  //         var sql = 'SELECT cfr.id AS id, cfr.userId AS userId '+
-  //           'FROM cfregistrations AS cfr '+
-  //           'LEFT JOIN  certifications ON certifications.modelName="cfregistration" '+
-  //              'AND certifications.modelId=cfr.id '+
-  //           'WHERE eventId="'+eId+'" AND present=true AND certifications.id IS NULL ';
-
-  //         req.we.db.defaultConnection.query(sql)
-  //         .then(function (r) {
-  //           if (!r || !r[0]) return next();
-
-  //           var cToCreate = r[0].map(function (i) {
-  //             return {
-  //               name: req.__('cfcertification.cfregitration.name', {
-  //                 event: res.locals.event
-  //               }),
-  //               modelName: 'cfregistration',
-  //               modelId: i.id,
-  //               userId: i.userId,
-  //               templateId: tpl.id
-  //             };
-  //           });
-
-  //           req.we.db.models.certification
-  //           .bulkCreate(cToCreate).then(function (rf) {
-  //             if (rf && rf.length) {
-  //               res.addMessage('success', {
-  //                 text: 'cfcertification.cfregitration.success',
-  //                 vars: { count: rf.length }
-  //               });
-  //             }
-  //             next();
-  //           }).catch(next);
-  //         }).catch(next);
-  //       }, done);
-  //     },
-
-  //     /**
-  //      * createCfsession certifications, this function will set modelName with
-  //      *   cfsession.id and modelId with cfregistrationId
-  //      * @param  {Function} done callback
-  //      */
-  //     function createCFSessionCerfications(done) {
-  //       if (!tpls || (req.params.modelName != 'cfsession')) return done();
-  //       req.we.utils.async.eachSeries(tpls, function (tpl, next) {
-  //         var sql = 'SELECT cfr.id AS id, cfr.userId AS userId '+
-  //           'FROM cfsessionSubscribers AS cfss '+
-  //           'LEFT JOIN cfregistrations AS cfr ON cfr.id=cfss.cfregistrationId '+
-  //           'LEFT JOIN certifications '+
-  //             'ON certifications.modelName="$cfsessionSubscriber-'+record.id+'" '+
-  //           'AND certifications.modelId=cfr.id '+
-  //           'WHERE cfr.eventId="'+eId+'" AND cfss.present=true '+
-  //             'AND certifications.id IS NULL ';
-
-  //         req.we.db.defaultConnection.query(sql)
-  //         .then(function (r) {
-  //           if (!r || !r[0]) return next();
-
-  //           cToCreate = r[0].map(function (i) {
-  //             return {
-  //               name: req.__('cfsession.cfregitration.name', {
-  //                 event: res.locals.event,
-  //                 cfsession: record
-  //               }),
-  //               modelName: '$cfsessionSubscriber-'+record.id,
-  //               modelId: i.id,
-  //               userId: i.userId,
-  //               templateId: tpl.id
-  //             };
-  //           });
-
-  //           req.we.db.models.certification
-  //           .bulkCreate(cToCreate).then(function (rf) {
-  //             next();
-  //           }).catch(next);
-  //         }).catch(next);
-  //       }, done);
-  //     }
-  //   ], function (err) {
-  //     if (err) {
-  //       req.we.log.error('Error in generate user certifications: ', err);
-  //     }
-
-  //     if (cToCreate && cToCreate.length) {
-  //       res.addMessage('success', {
-  //         text: 'cfcertification.cfregitration.success',
-  //         vars: { count: cToCreate.length }
-  //       });
-  //     } else {
-  //       res.addMessage('success', {
-  //         text: 'cfcertification.cfregitration.nothing'
-  //       });
-  //     }
-
-  //     return res.goTo(req.body.redirectTo);
-  //   });
-  // }
+  }
 };

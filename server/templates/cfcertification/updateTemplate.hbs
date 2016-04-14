@@ -1,2 +1,8 @@
+<div class="actions">
+{{#if data.id}}
+  {{#link-to 'cfcertification.previewCFRTypeTemplate' event.id data.id class="btn btn-default btn-sm" target="_blank"}}
+    <span class="glyphicon glyphicon-eye-open"></span> {{t 'form-cfcertification-template-preview'}}
+  {{/link-to}}
+{{/if}}
+</div>
 {{{form 'cfcertification-template' data validationError}}}
-
