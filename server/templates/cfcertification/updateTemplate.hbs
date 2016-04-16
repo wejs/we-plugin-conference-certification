@@ -1,8 +1,18 @@
 <div class="actions">
-{{#if data.id}}
-  {{#link-to 'cfcertification.previewCFRTypeTemplate' event.id data.id class="btn btn-default btn-sm" target="_blank"}}
-    <span class="glyphicon glyphicon-eye-open"></span> {{t 'form-cfcertification-template-preview'}}
-  {{/link-to}}
-{{/if}}
+  {{#if data.id}}
+    {{#link-to 'cfcertification.previewCFRTypeTemplate' event.id req.params.cfregistrationtypeId class="btn btn-default btn-sm" target="_blank"}}
+      <span class="glyphicon glyphicon-eye-open"></span> {{t 'form-cfcertification-template-preview'}}
+    {{/link-to}}
+
+    <div class="btn-group" role="group">
+      <button type="button" class="disabled btn btn-default btn-sm"  disabled >
+        {{t 'Cfcertifications'}}:
+        {{metadata.certificationsCount}} / {{event.registrationCount}}
+      </button>
+      {{#link-to 'cfcertification.generateAllCFRTypeCertifications' event.id req.params.cfregistrationtypeId class="btn btn-default btn-sm"}}
+        {{t 'cfcertification.generate'}}
+      {{/link-to}}
+    </div>
+  {{/if}}
 </div>
 {{{form 'cfcertification-template' data validationError}}}

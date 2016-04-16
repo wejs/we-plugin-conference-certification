@@ -27,97 +27,11 @@ module.exports = function loadPlugin(projectPath, Plugin) {
         //   'participou como palestrante da atividade {{cfsession.title}} '+
         //   'no evento {{event.title}} '+
         //   'no período de {{startDate}} a {{endDate}} '
-      },
-      handlers: {
-      'event_registrations': function(we, e, done) {
-        var tpl, cfregistrations, cToCreate = [];
-        var identifier = 'event-'+e.id+'-registration';
-
-        we.utils.async.series([
-          function loadCertificationTypes(done) {
-            we.db.models.cfregistrationtype.findAll({
-              where: { eventId: e.id }
-            }).then(function (r) {
-              cfregistrations = r;
-              done();
-            }).catch(done);
-          },
-          function loadCertificationTemplate(done) {
-            if (!cfregistrations) return done();
-            we.db.models.certificationTemplate.findOne({
-              where: {
-                identifier: identifier,
-                published: true
-              }
-            }).then(function (r) {
-              tpl = r;
-              done();
-            }).catch(done);
-          },
-          function loadCFR(done) {
-            if (!tpl) return done();
-
-            var startDate = we.utils.moment(e.eventStartDate).format('DD/MM');
-            var endDate = we.utils.moment(e.eventEndDate).format('DD/MM');
-
-            we.utils.async.eachSeries(cfregistrations, function (cfr, done) {
-              var sql = 'SELECT cfr.id AS id, cfr.userId AS userId, users.fullName, users.displayName, users.email '+
-                'FROM cfregistrations AS cfr '+
-                'LEFT JOIN  users ON users.id=cfr.userId '+
-                'LEFT JOIN  certifications ON certifications.identifier="'+identifier+
-                    '" AND certifications.userId=cfr.userId '+
-                'WHERE cfr.eventId="'+e.id+'" AND cfr.present=true '+
-                  ' AND certifications.id IS NULL ';
-
-              var textFN = we.hbs.compile(tpl.text);
-
-              we.db.defaultConnection.query(sql)
-              .then(function (r) {
-                if (!r || !r[0]) return done();
-
-                cToCreate = cToCreate.concat(r[0].map(function (i) {
-                  return {
-                    name: we.i18n.__('cfcertification.cfregitration.name', {
-                      event: e
-                    }),
-                    text: textFN({
-                      event: e,
-                      cfregistration: cfr,
-                      data: i,
-                      startDate: startDate,
-                      endDate: endDate
-                    }),
-                    identifier: identifier,
-                    userId: i.userId,
-                    templateId: tpl.id
-                  };
-                }));
-                done();
-              }).catch(done);
-            }, done);
-          },
-          function createCertifications(done) {
-            if (!cToCreate) return done();
-            we.db.models.certification
-            .bulkCreate(cToCreate).then(function () {
-              if (cToCreate && cToCreate.length) {
-                we.log.info('Event: registration certifications: '+cToCreate.length);
-              }
-              done();
-            }).catch(done);
-          }
-        ], function (err){
-          if (err) {
-            we.log.error('Error in generate user registration certifications: ', err);
-          }
-          return done();
-        });
       }
-    }
     }
   });
 
-  plugin.router.breadcrumb.add('cfcertificationAdmin', function eventAdmin(req, res, next) {
+  plugin.router.breadcrumb.add('cfcertificationAdmin', function cfcertificationAdmin(req, res, next) {
     if (!res.locals.event) return next();
 
       res.locals.breadcrumb = '<ol class="breadcrumb">'+
@@ -139,16 +53,6 @@ module.exports = function loadPlugin(projectPath, Plugin) {
 
   // ser plugin routes
   plugin.setRoutes({
-    'get /event/:eventId([0-9]+)/admin/certification': {
-      titleHandler  : 'i18n',
-      titleI18n     : 'cfcertification.adminPage',
-      layoutName    : 'eventAdmin',
-      controller    : 'cfcertification',
-      action        : 'adminPage',
-      // model         : 'event',
-      permission    : 'manage_event',
-      template      : 'cfcertification/adminPage'
-    },
     'get /event/:eventId([0-9]+)/admin/cfregistrationtype/:cfregistrationtypeId([0-9]+)/template': {
       name          : 'cfcertification.updateCFRTypeTemplate',
       layoutName    : 'eventAdmin',
@@ -156,6 +60,8 @@ module.exports = function loadPlugin(projectPath, Plugin) {
       action        : 'updateCFRTypeTemplate',
       model         : 'certificationTemplate',
       permission    : 'manage_event',
+      titleHandler  : 'i18n',
+      titleI18n     : 'Cfcertification.template',
       breadcrumbHandler: 'cfcertificationAdmin',
       template      : 'cfcertification/updateTemplate'
     },
@@ -177,6 +83,15 @@ module.exports = function loadPlugin(projectPath, Plugin) {
       action        : 'previewCFRTypeTemplate',
       model         : 'certificationTemplate',
       permission    : 'manage_event'
+    },
+
+    'get /event/:eventId([0-9]+)/admin/cfregistrationtype/:cfregistrationtypeId([0-9]+)/template/generate': {
+      name          : 'cfcertification.generateAllCFRTypeCertifications',
+      layoutName    : 'eventAdmin',
+      controller    : 'cfcertification',
+      action        : 'generateAllCFRTypeCertifications',
+      model         : 'certificationTemplate',
+      permission    : 'manage_event'
     }
   });
 
@@ -194,20 +109,84 @@ module.exports = function loadPlugin(projectPath, Plugin) {
     }, done);
   }
 
-  plugin.hooks.on('we-plugin-event:widget:we-cf-menu-content', function onCFContentMenu(data, done){
-    if (!data.widget.menu || !data.widget.eventId) return done();
+  /**
+   * Certification generator handlers
+   * @type {Object}
+   */
+  plugin.generateCertificatiosForCFRType = function generateCertificatiosForCFRType(we, e, cfr, done) {
+    var tpl, cToCreate = [];
 
-    data.widget.menu.addLink({
-      id: 'cfcertification.adminPage',
-      text: '<span class="fa fa-certificate"></span> '+data.req.__('cfcertification.adminPage'),
-      href: '/event/'+data.widget.eventId+'/admin/certification',
-      class: null,
-      weight: 17,
-      name: 'cfcertification.adminPage'
+    var identifier = 'event-'+e.id+'-cfregistrationtype-'+cfr.id;
+
+    we.utils.async.series([
+      function loadCertificationTemplate(done) {
+        we.db.models.certificationTemplate.findOne({
+          where: {
+            identifier: identifier,
+            published: true
+          }
+        }).then(function (r) {
+          tpl = r;
+          done();
+        }).catch(done);
+      },
+      function loadCFR(done) {
+        if (!tpl) return done();
+
+        var startDate = we.utils.moment(e.eventStartDate).format('L');
+        var endDate = we.utils.moment(e.eventEndDate).format('L');
+
+        var sql = 'SELECT cfr.id AS id, cfr.userId AS userId, users.fullName, users.displayName, users.email '+
+          'FROM cfregistrations AS cfr '+
+          'LEFT JOIN  users ON users.id=cfr.userId '+
+          'LEFT JOIN  certifications ON certifications.identifier="'+identifier+
+              '" AND certifications.userId=cfr.userId '+
+          'WHERE cfr.eventId="'+e.id+'" AND cfr.present=true '+
+            ' AND certifications.id IS NULL ';
+
+        var textFN = we.hbs.compile(tpl.text);
+
+        we.db.defaultConnection.query(sql)
+        .spread(function (r) {
+          if (!r || !r) return done();
+
+          cToCreate = cToCreate.concat(r.map(function (i) {
+            return {
+              name: we.i18n.__('cfcertification.cfregitration.name', {
+                event: e
+              }),
+              text: textFN({
+                event: e,
+                cfregistration: cfr,
+                data: i,
+                startDate: startDate,
+                endDate: endDate
+              }),
+              identifier: identifier,
+              userId: i.userId,
+              templateId: tpl.id
+            };
+          }));
+          done();
+        }).catch(done);
+      },
+      function createCertifications(done) {
+        if (!cToCreate) return done();
+        we.db.models.certification
+        .bulkCreate(cToCreate).then(function () {
+          if (cToCreate && cToCreate.length) {
+            we.log.info('Event: registration certifications: '+cToCreate.length);
+          }
+          done();
+        }).catch(done);
+      }
+    ], function (err){
+      if (err) {
+        we.log.error('Error in generate user registration certifications: ', err);
+      }
+      return done();
     });
-
-    done();
-  });
+  }
 
   return plugin;
 };

@@ -33,5 +33,7 @@
   "form-helper-cfcertification-template-published": "O sistema só vai gerar certificados se estiver publicado",
   "form-placeholder-cfcertification-template-published": " ",
 
-  "form-cfcertification-template-preview": "Testar"
+  "form-cfcertification-template-preview": "Testar",
+  "Cfcertifications": "Certificados",
+  "Cfcertification.template": "Template do certificado"
 }

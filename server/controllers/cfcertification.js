@@ -1,68 +1,4 @@
-// TODO move query to model
-
 module.exports = {
-  adminPage: function adminPage(req, res) {
-    if (!res.locals.event) return res.notFound();
-
-    res.locals.certificationIdentifiers = {}
-    res.locals.certificationIdentifiers['event-'+res.locals.event.id+'-registration'] = {};
-    res.locals.certificationIdentifiers['event-'+res.locals.event.id+'-cfsession'] = {};
-
-    var cIcount = Object.keys(res.locals.certificationIdentifiers).length
-
-    //res.locals.certificationIdentifiers['event-'+res.locals.event.id+'-cfspeaker'] = {};
-
-    req.we.utils.async.series([
-      function loadCertificationTemplate(done) {
-        req.we.db.models.certificationTemplate.findAll({
-          where: {
-            identifier: {
-              $like:'event-'+res.locals.event.id+'%'
-            }
-          }
-        }).then(function (ct) {
-          res.locals.certificationTemplate = ct;
-
-          if (ct) {
-            for (var i = 0; i < ct.length; i++) {
-              res.locals.certificationIdentifiers[ct[i].identifier] = ct[i];
-            }
-
-            if ( (ct.length >=  cIcount) &&
-              (res.locals.event.registrationStatus == 'closed_after')
-            ) {
-              res.locals.haveAllTemplates = true;
-            }
-          }
-
-          done();
-        }).catch(done);
-      },
-      function loadCFRegistrationTypes(done) {
-        req.we.db.models.cfregistrationtype.findAll({
-          where: { eventId: res.locals.event.id }
-        }).then(function (r) {
-          res.locals.cfregistrationtypes = r;
-          done();
-        }).catch(done);
-      },
-      function loadRegistrableCFSessions(done) {
-        req.we.db.models.cfsession.findAll({
-          where: {
-            eventId: res.locals.event.id,
-            requireRegistration: true
-          }
-        }).then(function (r) {
-          res.locals.cfsessions = r;
-          done();
-        }).catch(done);
-      }
-    ], function (err) {
-      if (err) return res.serverError(err);
-      res.ok();
-    });
-  },
-
   updateCFRTypeTemplate: function updateCFRTypeTemplate(req, res) {
     if (!res.locals.event) return res.notFound();
 
@@ -81,6 +17,24 @@ module.exports = {
           done();
         }).catch(done);
       },
+      function getGeneratedCertificationsCount(done) {
+        if (!res.locals.cfregistrationtype) return done();
+
+        req.we.db.models.certification.count({
+          where: { identifier: identifier }
+        }).then(function afterGetCount(count) {
+          res.locals.metadata.certificationsCount = count;
+
+          done();
+        }).catch(done);
+      },
+      // function registrationsCount(done) {
+      //   req.we.db.models.cfregistration.count({
+      //     where: {}
+      //   }).then(function afterLoadRegistrationsCount(count) {
+      //     res.locals.metadata.cfregistrationCount
+      //   }).catch(done);
+      // },
       function loadCertificationTemplate(done) {
         req.we.db.models.certificationTemplate.findOne({
           where: { identifier: identifier }
@@ -169,6 +123,27 @@ module.exports = {
 
       certificator.renderPDFtemplate(req, res);
 
+    }).catch(res.queryError);
+  },
+
+  generateAllCFRTypeCertifications: function generateAllCFRTypeCertifications(req, res) {
+    var plugin = req.we.plugins['we-plugin-event-certification'];
+    var id = req.params.cfregistrationtypeId;
+
+    req.we.db.models.cfregistrationtype.findOne({
+      where: {
+        id: id,
+        eventId: res.locals.event.id
+      }
+    }).then(function afterFindCFRType(cfr) {
+      if (!cfr) return res.notFound();
+
+      plugin.generateCertificatiosForCFRType(req.we, res.locals.event, cfr, function(err) {
+        if (err) return res.serverError();
+
+        res.goTo(res.locals.redirectTo || '/event/'+res.locals.event.id+
+          '/admin/cfregistrationtype/'+id+'/template');
+      });
     }).catch(res.queryError);
   }
 };

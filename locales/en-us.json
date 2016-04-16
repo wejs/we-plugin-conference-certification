@@ -11,5 +11,7 @@
   "form-helper-cfcertification-template-published": "Only generate certifications for this template if it will ve published",
   "form-placeholder-cfcertification-template-published": " ",
 
-  "form-cfcertification-template-preview": "Preview"
+  "form-cfcertification-template-preview": "Preview",
+  "Cfcertifications": "Certifications",
+  "Cfcertification.template": "Certification template"
 }
