@@ -7,11 +7,14 @@
     <div class="btn-group" role="group">
       <button type="button" class="disabled btn btn-default btn-sm"  disabled >
         {{t 'Cfcertifications'}}:
-        {{metadata.certificationsCount}} / {{event.registrationCount}}
+        {{metadata.certificationsCount}} / {{metadata.CFRTregistrationCount}}
       </button>
-      {{#link-to 'cfcertification.generateAllCFRTypeCertifications' event.id req.params.cfregistrationtypeId class="btn btn-default btn-sm"}}
-        {{t 'cfcertification.generate'}}
-      {{/link-to}}
+
+      {{#if metadata.CFRTregistrationCount}}
+        {{#link-to 'cfcertification.generateAllCFRTypeCertifications' event.id req.params.cfregistrationtypeId class="btn btn-default btn-sm"}}
+          {{t 'cfcertification.generate'}}
+        {{/link-to}}
+      {{/if}}
     </div>
   {{/if}}
 </div>

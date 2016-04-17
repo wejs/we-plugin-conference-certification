@@ -21,20 +21,25 @@ module.exports = {
         if (!res.locals.cfregistrationtype) return done();
 
         req.we.db.models.certification.count({
-          where: { identifier: identifier }
+          where: {
+            identifier: identifier
+          }
         }).then(function afterGetCount(count) {
           res.locals.metadata.certificationsCount = count;
 
           done();
         }).catch(done);
       },
-      // function registrationsCount(done) {
-      //   req.we.db.models.cfregistration.count({
-      //     where: {}
-      //   }).then(function afterLoadRegistrationsCount(count) {
-      //     res.locals.metadata.cfregistrationCount
-      //   }).catch(done);
-      // },
+      function CFRTypeRegistrations(done) {
+        req.we.db.models.cfregistration.count({
+          where: {
+            cfregistrationtypeId: res.locals.cfregistrationtype.id
+          }
+        }).then(function (count) {
+          res.locals.metadata.CFRTregistrationCount = count;
+          done();
+        }).catch(done);
+      },
       function loadCertificationTemplate(done) {
         req.we.db.models.certificationTemplate.findOne({
           where: { identifier: identifier }
