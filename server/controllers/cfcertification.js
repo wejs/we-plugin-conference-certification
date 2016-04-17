@@ -138,12 +138,20 @@ module.exports = {
     }).then(function afterFindCFRType(cfr) {
       if (!cfr) return res.notFound();
 
-      plugin.generateCertificatiosForCFRType(req.we, res.locals.event, cfr, function(err) {
-        if (err) return res.serverError();
+      var identifier = 'event-'+res.locals.event.id+'-cfregistrationtype-'+id;
 
-        res.goTo(res.locals.redirectTo || '/event/'+res.locals.event.id+
-          '/admin/cfregistrationtype/'+id+'/template');
-      });
+      req.we.db.models.certification.destroy({
+        where: { identifier: identifier }
+      }).then(function afterDeleteOldCertifications(){
+
+        plugin.generateCertificatiosForCFRType(req.we, res.locals.event, cfr, function(err) {
+          if (err) return res.serverError();
+
+          res.goTo(res.locals.redirectTo || '/event/'+res.locals.event.id+
+            '/admin/cfregistrationtype/'+id+'/template');
+        });
+      }).catch(res.queryError);
+
     }).catch(res.queryError);
   }
 };

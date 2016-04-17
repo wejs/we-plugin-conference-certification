@@ -102,21 +102,27 @@ module.exports = function loadPlugin(projectPath, Plugin) {
    * @param  {Function} done  callback
    */
   plugin.generateEventCertifications = function generateEventCertifications(event, we, done) {
-    var hNames = Object.keys(we.config.cfcertification.handlers);
 
-    we.utils.async.eachSeries(hNames, function (name, done) {
-      we.config.cfcertification.handlers[name](we, event, done);
-    }, done);
+    we.utils.async.series([
+      function generateCFRTypeCertificationsOnCron(done) {
+        we.db.models.cfregistrationtype.findAll()
+        .then(function afterFindCFRTypes(cfrs) {
+          we.utils.async.eachSeries(cfrs, function onEachCFRType(cfr, done) {
+            plugin.generateCertificatiosForCFRType(we, event, cfr, done);
+          }, done);
+        }).catch(done);
+      }
+    ], done);
   }
 
-  /**
+  /**generateEventCertifications
    * Certification generator handlers
    * @type {Object}
    */
-  plugin.generateCertificatiosForCFRType = function generateCertificatiosForCFRType(we, e, cfr, done) {
+  plugin.generateCertificatiosForCFRType = function generateCertificatiosForCFRType(we, e, cfrt, done) {
     var tpl, cToCreate = [];
 
-    var identifier = 'event-'+e.id+'-cfregistrationtype-'+cfr.id;
+    var identifier = 'event-'+e.id+'-cfregistrationtype-'+cfrt.id;
 
     we.utils.async.series([
       function loadCertificationTemplate(done) {
@@ -141,7 +147,9 @@ module.exports = function loadPlugin(projectPath, Plugin) {
           'LEFT JOIN  users ON users.id=cfr.userId '+
           'LEFT JOIN  certifications ON certifications.identifier="'+identifier+
               '" AND certifications.userId=cfr.userId '+
-          'WHERE cfr.eventId="'+e.id+'" AND cfr.present=true '+
+          'WHERE cfr.eventId="'+e.id+'" '+
+            ' AND cfr.cfregistrationtypeId='+cfrt.id+
+            ' AND cfr.present=true ' +
             ' AND certifications.id IS NULL ';
 
         var textFN = we.hbs.compile(tpl.text);
@@ -151,13 +159,19 @@ module.exports = function loadPlugin(projectPath, Plugin) {
           if (!r || !r) return done();
 
           cToCreate = cToCreate.concat(r.map(function (i) {
+            // use displayName if fullName not is set
+            if (!i.fullName) i.fullName = i.displayName;
+            // skip if dont have userName
+            if (!i.fullName && !i.displayName) return null;
+
             return {
               name: we.i18n.__('cfcertification.cfregitration.name', {
                 event: e
               }),
               text: textFN({
                 event: e,
-                cfregistration: cfr,
+                cfregistration: i,
+                cfregistrationtype: cfrt,
                 data: i,
                 startDate: startDate,
                 endDate: endDate
@@ -175,7 +189,7 @@ module.exports = function loadPlugin(projectPath, Plugin) {
         we.db.models.certification
         .bulkCreate(cToCreate).then(function () {
           if (cToCreate && cToCreate.length) {
-            we.log.info('Event: registration certifications: '+cToCreate.length);
+            we.log.info('Event:id:'+e.id+': registration certifications: '+cToCreate.length+ ' identifier:'+identifier);
           }
           done();
         }).catch(done);
