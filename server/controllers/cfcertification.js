@@ -33,7 +33,8 @@ module.exports = {
       function CFRTypeRegistrations(done) {
         req.we.db.models.cfregistration.count({
           where: {
-            cfregistrationtypeId: res.locals.cfregistrationtype.id
+            cfregistrationtypeId: res.locals.cfregistrationtype.id,
+            present: true
           }
         }).then(function (count) {
           res.locals.metadata.CFRTregistrationCount = count;
