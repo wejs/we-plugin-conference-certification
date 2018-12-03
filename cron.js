@@ -1,5 +1,6 @@
 module.exports = function (we, done) {
-  we.db.models.event.findAll()
+  we.db.models.event
+  .findAll()
   .then(function (events) {
     if (!events) return done();
 
@@ -8,5 +9,6 @@ module.exports = function (we, done) {
       // only generate if event is closed after (after end)
       we.plugins['we-plugin-event-certification'].generateEventCertifications(e, we, done);
     }, done);
-  });
+  })
+  .catch(done);
 }
